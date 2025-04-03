@@ -11,7 +11,7 @@ const Dashboard = () => {
 
   // Define API base URL based on environment
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://leavemanagement-qaub.onrender.com' 
+    ? '' // Empty string for relative URLs in production
     : 'http://localhost:10000';
 
   useEffect(() => {

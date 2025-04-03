@@ -308,3 +308,6 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Export the Express app for Vercel serverless functions
+module.exports = app;

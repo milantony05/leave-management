@@ -1,0 +1,20 @@
+{
+  "name": "leave-management-system",
+  "version": "1.0.0",
+  "description": "Leave Management System with React frontend and Express backend",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "cd client && npm install && npm run build",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm install && node server.js",
+    "client": "cd client && npm install && npm start",
+    "postinstall": "cd server && npm install && cd ../client && npm install"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+} 
