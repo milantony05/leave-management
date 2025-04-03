@@ -2,8 +2,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "",
-    "setup-db": "node scripts/setup_database.js",
-    "install-oracle": "node install_oracle_deps.js"
+    "setup-db": "node scripts/setup_database.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

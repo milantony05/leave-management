@@ -17,7 +17,7 @@ app.use(cors());
 db.initialize()
   .then(() => {
     console.log('Connected to Oracle Database');
-    insertAdminUser(); // Call the function to insert admin if not present
+    insertAdminUser();
   })
   .catch((err) => {
     console.error('Error connecting to Oracle Database:', err);
@@ -26,11 +26,11 @@ db.initialize()
 // Middleware for token validation
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header('Authorization');
-  const token = authHeader && authHeader.split(' ')[1]; // Extract token after "Bearer "
+  const token = authHeader && authHeader.split(' ')[1];
   
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => { // Use env variable for secret
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
     next();
@@ -121,19 +121,12 @@ app.post('/api/login', async (req, res) => {
 
 // Helper function to calculate the number of days between two dates
 const calculateLeaveDays = (startDate, endDate) => {
-  console.log('Calculating leave days for:', { startDate, endDate });
-  
-  // Ensure we're working with Date objects
   const start = startDate instanceof Date ? startDate : new Date(startDate);
   const end = endDate instanceof Date ? endDate : new Date(endDate);
   
-  console.log('Converted dates:', { start, end });
-  
-  // Calculate difference in milliseconds and convert to days
-  const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+  const oneDay = 24 * 60 * 60 * 1000;
   const diffDays = Math.round(Math.abs((end - start) / oneDay)) + 1;
   
-  console.log('Calculated days:', diffDays);
   return diffDays;
 };
 
@@ -141,17 +134,12 @@ const calculateLeaveDays = (startDate, endDate) => {
 app.post('/api/leaves/apply', authenticateToken, async (req, res) => {
   const { leaveType, startDate, endDate, reason } = req.body;
   try {
-    console.log('Leave application data:', { leaveType, startDate, endDate, reason });
-    
     const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     
-    console.log('User found:', { userId: user.userId, username: user.username });
-    
     const leaveDays = calculateLeaveDays(startDate, endDate);
-    console.log('Leave days calculated:', leaveDays);
 
     if (leaveType === 'casual' && user.casualLeaveBalance < leaveDays) {
       return res.status(400).json({ message: `You only have ${user.casualLeaveBalance} casual leave days left.` });
@@ -167,11 +155,8 @@ app.post('/api/leaves/apply', authenticateToken, async (req, res) => {
       reason,
       status: 'pending'
     });
-    
-    console.log('Leave application created:', leaveApplication);
 
     await leaveApplication.save();
-    console.log('Leave application saved successfully');
     
     res.status(201).json({ message: `Leave applied successfully for ${leaveDays} days.` });
   } catch (error) {
@@ -222,20 +207,16 @@ app.get('/api/leaves/all', authenticateToken, async (req, res) => {
 app.post('/api/leaves/approve', authenticateToken, async (req, res) => {
   if (req.user.role !== 'admin') return res.sendStatus(403);
   const { applicationId } = req.body;
-  console.log('Attempting to approve leave application:', applicationId);
 
   try {
     const application = await LeaveApplication.findById(applicationId);
-    console.log('Application found:', application);
     
     if (application) {
       application.status = 'approved';
       
       const user = await User.findById(application.userId);
-      console.log('User found:', user);
       
       const leaveDays = calculateLeaveDays(application.startDate, application.endDate);
-      console.log('Leave days calculated:', leaveDays);
       
       if (application.leaveType === 'casual') {
         user.casualLeaveBalance -= leaveDays;
@@ -244,14 +225,10 @@ app.post('/api/leaves/approve', authenticateToken, async (req, res) => {
       }
       
       await user.save();
-      console.log('User balance updated');
-      
       await application.save();
-      console.log('Application status updated to approved');
       
       res.json({ message: "Leave application approved" });
     } else {
-      console.log('Application not found for ID:', applicationId);
       res.status(404).json({ message: "Application not found" });
     }
   } catch (error) {
@@ -263,20 +240,16 @@ app.post('/api/leaves/approve', authenticateToken, async (req, res) => {
 app.post('/api/leaves/reject', authenticateToken, async (req, res) => {
   if (req.user.role !== 'admin') return res.sendStatus(403);
   const { applicationId } = req.body;
-  console.log('Attempting to reject leave application:', applicationId);
 
   try {
     const application = await LeaveApplication.findById(applicationId);
-    console.log('Application found:', application);
     
     if (application) {
       application.status = 'rejected';
       await application.save();
-      console.log('Application status updated to rejected');
       
       res.json({ message: "Leave application rejected" });
     } else {
-      console.log('Application not found for ID:', applicationId);
       res.status(404).json({ message: "Application not found" });
     }
   } catch (error) {
@@ -308,6 +281,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Export the Express app for Vercel serverless functions
-module.exports = app;
