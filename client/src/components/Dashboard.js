@@ -66,6 +66,14 @@ const Dashboard = () => {
     navigate('/login'); // Redirect to login page
   };
 
+  const getStatusClass = (status) => {
+    switch(status) {
+      case 'approved': return 'status-approved';
+      case 'rejected': return 'status-rejected';
+      default: return 'status-pending';
+    }
+  };
+
   return (
     <div className="container">
       <header className="app-header">
@@ -74,45 +82,69 @@ const Dashboard = () => {
       {/* Navigation Bar */}
       <nav>
         <ul>
-          <li>
-            <Link to="/dashboard">Home</Link>
-          </li>
-          <li>
-            <Link to="/apply-leave">Apply Leave</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <button onClick={handleLogout}>Logout</button>
-          </li>
+          <div className="nav-center">
+            <li>
+              <Link to="/dashboard">Home</Link>
+            </li>
+            <li>
+              <Link to="/apply-leave">Apply Leave</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+          </div>
+          <div className="nav-right">
+            <li>
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </div>
         </ul>
       </nav>
 
       {/* Dashboard Content */}
-      <header>
-        <h1>Welcome, {username}!</h1>
-      </header>
+      <div className="content-section">
+        <div className="user-greeting">
+          <h2>Welcome, {username}!</h2>
+        </div>
 
-      {/* Display error message if there is one */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        {/* Display error message if there is one */}
+        {error && <div className="error-message">{error}</div>}
 
-      <h2>Leave Balance</h2>
-      <p>Casual Leave: {balance.casualLeaveBalance || 0}</p>
-      <p>Medical Leave: {balance.medicalLeaveBalance || 0}</p>
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <h3>Leave Balance</h3>
+            <div className="balance-info">
+              <p><strong>Casual Leave:</strong> {balance.casualLeaveBalance || 0} days</p>
+              <p><strong>Medical Leave:</strong> {balance.medicalLeaveBalance || 0} days</p>
+            </div>
+          </div>
 
-      <h2>Leave Applications</h2>
-      <ul>
-        {applications.length > 0 ? (
-          applications.map(app => (
-            <li key={app._id}>
-              {app.leaveType} from {new Date(app.startDate).toDateString()} to {new Date(app.endDate).toDateString()} - Status: {app.status}
-            </li>
-          ))
-        ) : (
-          <li>No leave applications found.</li>
-        )}
-      </ul>
+          <div className="dashboard-card">
+            <h3>Leave Applications</h3>
+            {applications.length > 0 ? (
+              <ul className="application-list">
+                {applications.map(app => (
+                  <li key={app._id} className="application-item">
+                    <div className="application-type">
+                      <strong>{app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1)} Leave</strong>
+                    </div>
+                    <div className="application-dates">
+                      {new Date(app.startDate).toLocaleDateString()} to {new Date(app.endDate).toLocaleDateString()}
+                    </div>
+                    <div className="application-status">
+                      Status: <span className={getStatusClass(app.status)}>
+                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No leave applications found.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

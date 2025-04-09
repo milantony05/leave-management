@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom'; 
 
 // Define the API base URL
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
@@ -11,6 +11,7 @@ const AdminPanel = () => {
   const [applications, setApplications] = useState([]);
   const [grantedApplications, setGrantedApplications] = useState([]);
   const [rejectedApplications, setRejectedApplications] = useState([]);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,24 +22,17 @@ const AdminPanel = () => {
         });
         const allApplications = response.data;
         
-        console.log('Fetched applications:', allApplications);
-        if (allApplications.length > 0) {
-          console.log('Sample application:', allApplications[0]);
-          console.log('Application ID:', allApplications[0]._id || allApplications[0].applicationId);
-        }
-
         // Split applications into granted and rejected
         const granted = allApplications.filter(app => app.status === 'approved');
         const rejected = allApplications.filter(app => app.status === 'rejected');
         const pending = allApplications.filter(app => app.status === 'pending');
         
-        console.log(`Found ${pending.length} pending, ${granted.length} granted, ${rejected.length} rejected applications`);
-
         setApplications(allApplications);
         setGrantedApplications(granted);
         setRejectedApplications(rejected);
       } catch (error) {
         console.error('Error fetching leave applications:', error);
+        setError('Error loading leave applications. Please try again later.');
       }
     };
 
@@ -47,7 +41,6 @@ const AdminPanel = () => {
 
   const handleApproval = async (id) => {
     try {
-      console.log('Approving application with ID:', id);
       await axios.post(`${API_BASE_URL}/api/leaves/approve`, { applicationId: id }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -70,12 +63,12 @@ const AdminPanel = () => {
       );
     } catch (error) {
       console.error('Error approving leave application:', error);
+      setError('Failed to approve the leave application. Please try again.');
     }
   };
 
   const handleRejection = async (id) => {
     try {
-      console.log('Rejecting application with ID:', id);
       await axios.post(`${API_BASE_URL}/api/leaves/reject`, { applicationId: id }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -98,14 +91,21 @@ const AdminPanel = () => {
       );
     } catch (error) {
       console.error('Error rejecting leave application:', error);
+      setError('Failed to reject the leave application. Please try again.');
     }
   };
 
   const handleLogout = () => {
-    // Remove token from local storage
     localStorage.removeItem('token');
-    // Redirect to the login page
-    navigate('/login'); // or useNavigate('/login') if using react-router-dom v6
+    navigate('/login');
+  };
+
+  const getStatusClass = (status) => {
+    switch(status) {
+      case 'approved': return 'status-approved';
+      case 'rejected': return 'status-rejected';
+      default: return 'status-pending';
+    }
   };
 
   return (
@@ -113,51 +113,116 @@ const AdminPanel = () => {
       <header className="app-header">
         <h1>Leave Management System</h1>
       </header>
-      <div className="header">
-        <h1>Admin Panel</h1>
-        {/* Add Logout button */}
-        <button onClick={handleLogout} style={{ marginLeft: 'auto', padding: '10px 20px', cursor: 'pointer' }}>
-          Logout
-        </button>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/admin">Dashboard</Link>
+          </li>
+          <li>
+            <Link to="/about">About</Link>
+          </li>
+          <li>
+            <button onClick={handleLogout}>Logout</button>
+          </li>
+        </ul>
+      </nav>
+
+      <div className="content-section">
+        <div className="user-greeting">
+          <h2>Admin Dashboard</h2>
+        </div>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <div className="admin-section">
+          <h3>Pending Leave Applications</h3>
+          {applications.filter(app => app.status === 'pending').length > 0 ? (
+            <ul className="application-list">
+              {applications.filter(app => app.status === 'pending').map(app => (
+                <li key={app._id || app.applicationId} className="application-item admin-item">
+                  <div className="application-type">
+                    <strong>{app.userId?.username || 'Unknown User'}</strong> ({app.userId?.email || 'No email'})
+                  </div>
+                  <div className="application-details">
+                    Applied for <strong>{app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1)} Leave</strong> from {new Date(app.startDate).toLocaleDateString()} to {new Date(app.endDate).toLocaleDateString()}
+                  </div>
+                  <div className="application-status">
+                    Status: <span className={getStatusClass(app.status)}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="admin-actions">
+                    <button 
+                      onClick={() => handleApproval(app._id || app.applicationId)}
+                      className="approve-btn"
+                    >
+                      Approve
+                    </button>
+                    <button 
+                      onClick={() => handleRejection(app._id || app.applicationId)}
+                      className="reject-btn"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No pending leave applications.</p>
+          )}
+        </div>
+
+        <div className="admin-section">
+          <h3>Approved Leave Applications</h3>
+          {grantedApplications.length > 0 ? (
+            <ul className="application-list">
+              {grantedApplications.map(app => (
+                <li key={app._id || app.applicationId} className="application-item">
+                  <div className="application-type">
+                    <strong>{app.userId?.username || 'Unknown User'}</strong> ({app.userId?.email || 'No email'})
+                  </div>
+                  <div className="application-details">
+                    <strong>{app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1)} Leave</strong> from {new Date(app.startDate).toLocaleDateString()} to {new Date(app.endDate).toLocaleDateString()}
+                  </div>
+                  <div className="application-status">
+                    Status: <span className={getStatusClass(app.status)}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No approved leave applications.</p>
+          )}
+        </div>
+
+        <div className="admin-section">
+          <h3>Rejected Leave Applications</h3>
+          {rejectedApplications.length > 0 ? (
+            <ul className="application-list">
+              {rejectedApplications.map(app => (
+                <li key={app._id || app.applicationId} className="application-item">
+                  <div className="application-type">
+                    <strong>{app.userId?.username || 'Unknown User'}</strong> ({app.userId?.email || 'No email'})
+                  </div>
+                  <div className="application-details">
+                    <strong>{app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1)} Leave</strong> from {new Date(app.startDate).toLocaleDateString()} to {new Date(app.endDate).toLocaleDateString()}
+                  </div>
+                  <div className="application-status">
+                    Status: <span className={getStatusClass(app.status)}>
+                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No rejected leave applications.</p>
+          )}
+        </div>
       </div>
-      
-      <h2>Pending Leave Applications</h2>
-      <ul>
-        {applications.filter(app => app.status === 'pending').map(app => (
-          <li key={app._id || app.applicationId}>
-            <div>
-              <strong>{app.userId?.username || 'Unknown'}</strong> ({app.userId?.email || 'Unknown'}) 
-              has applied for {app.leaveType} leave from {new Date(app.startDate).toDateString()} to {new Date(app.endDate).toDateString()} - Status: {app.status}
-            </div>
-            <button onClick={() => handleApproval(app._id || app.applicationId)}>Approve</button>
-            <button onClick={() => handleRejection(app._id || app.applicationId)}>Reject</button>
-          </li>
-        ))}
-      </ul>
-
-      <h2>Granted Leave</h2>
-      <ul>
-        {grantedApplications.map(app => (
-          <li key={app._id || app.applicationId}>
-            <div>
-              <strong>{app.userId?.username || 'Unknown'}</strong> ({app.userId?.email || 'Unknown'}) 
-              had {app.leaveType} leave from {new Date(app.startDate).toDateString()} to {new Date(app.endDate).toDateString()} - Status: {app.status}
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <h2>Rejected Leave</h2>
-      <ul>
-        {rejectedApplications.map(app => (
-          <li key={app._id || app.applicationId}>
-            <div>
-              <strong>{app.userId?.username || 'Unknown'}</strong> ({app.userId?.email || 'Unknown'}) 
-              had {app.leaveType} leave from {new Date(app.startDate).toDateString()} to {new Date(app.endDate).toDateString()} - Status: {app.status}
-            </div>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

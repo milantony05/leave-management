@@ -19,7 +19,7 @@ const ApplyLeave = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (end < start) {
-      alert('The end date cannot be before the start date. Please correct it.');
+      setMessage('The end date cannot be before the start date. Please correct it.');
       return false;
     }
     return true;
@@ -67,57 +67,78 @@ const ApplyLeave = () => {
       {/* Navigation Bar */}
       <nav>
         <ul>
-          <li>
-            <Link to="/dashboard">Home</Link>
-          </li>
-          <li>
-            <Link to="/apply-leave">Apply Leave</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <button onClick={handleLogout}>Logout</button>
-          </li>
+          <div className="nav-center">
+            <li>
+              <Link to="/dashboard">Home</Link>
+            </li>
+            <li>
+              <Link to="/apply-leave">Apply Leave</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+          </div>
+          <div className="nav-right">
+            <li>
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </div>
         </ul>
       </nav>
 
-      <h1>Apply for Leave</h1>
-      <form onSubmit={handleSubmit}>
-        {/* Display the error message if it exists */}
-        {message && <p style={{ color: 'red' }}>{message}</p>}
-        <label>Leave Type:</label>
-        <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
-          <option value="casual">Casual Leave</option>
-          <option value="medical">Medical Leave</option>
-        </select>
+      <div className="content-section">
+        <h2>Apply for Leave</h2>
+        {message && <div className="error-message">{message}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="leaveType">Leave Type</label>
+            <select 
+              id="leaveType"
+              value={leaveType} 
+              onChange={(e) => setLeaveType(e.target.value)}
+            >
+              <option value="casual">Casual Leave</option>
+              <option value="medical">Medical Leave</option>
+            </select>
+          </div>
 
-        <label>Start Date:</label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          required
-        />
+          <div className="form-group">
+            <label htmlFor="startDate">Start Date</label>
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+            />
+          </div>
 
-        <label>End Date:</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          required
-        />
+          <div className="form-group">
+            <label htmlFor="endDate">End Date</label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+            />
+          </div>
 
-        <label>Reason:</label>
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder="Reason for leave"
-          required
-        ></textarea>
+          <div className="form-group">
+            <label htmlFor="reason">Reason for Leave</label>
+            <textarea
+              id="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Please provide details about your leave request"
+              required
+            ></textarea>
+          </div>
 
-        <button type="submit">Apply</button>
-      </form>
+          <button type="submit">Submit Application</button>
+        </form>
+      </div>
     </div>
   );
 };
