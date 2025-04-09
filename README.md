@@ -70,13 +70,13 @@ A simple full-stack web application to manage leave requests for hostel. Student
 
 ## Gallery
 
-![1](https://github.com/user-attachments/assets/7fabe396-cd32-43c2-aabf-ebc1d375a55f)
+![1](https://github.com/user-attachments/assets/490cf234-ad3d-4b3d-b51f-63e3869ccf15)
 
-![2](https://github.com/user-attachments/assets/e6bfee0f-1312-48d7-8466-c211641269f4)
+![2](https://github.com/user-attachments/assets/6026e613-dbd5-4009-8e59-79f247129d7e)
 
-![3](https://github.com/user-attachments/assets/ec7b34b7-b77c-4899-b09c-ec32d509fa24)
+![3](https://github.com/user-attachments/assets/74e19d46-7636-45e9-82c7-20286fc7157d)
 
-![4](https://github.com/user-attachments/assets/1c48bdaf-f9d5-4b69-b664-f2a4a85a0671)
+![4](https://github.com/user-attachments/assets/d5816c86-4697-4b83-85c3-ce2d642a1e7f)
 
 ## Contact
 
