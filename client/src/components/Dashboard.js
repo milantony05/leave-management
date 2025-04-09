@@ -14,6 +14,15 @@ const Dashboard = () => {
     ? '' // Empty string for relative URLs in production
     : 'http://localhost:10000';
 
+  // Helper function to format dates in dd/mm/yyyy format
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   useEffect(() => {
     // Fetch user details
     const fetchUserDetails = async () => {
@@ -129,7 +138,7 @@ const Dashboard = () => {
                       <strong>{app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1)} Leave</strong>
                     </div>
                     <div className="application-dates">
-                      {new Date(app.startDate).toLocaleDateString()} to {new Date(app.endDate).toLocaleDateString()}
+                      {formatDate(app.startDate)} to {formatDate(app.endDate)}
                     </div>
                     <div className="application-status">
                       Status: <span className={getStatusClass(app.status)}>
