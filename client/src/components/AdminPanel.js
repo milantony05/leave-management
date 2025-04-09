@@ -137,13 +137,17 @@ const AdminPanel = () => {
         <h2>About Us</h2>
         <p>
           Welcome to our application! We provide a streamlined and efficient way to manage and apply for leave.
-          Our goal is to simplify the leave application process and provide a user-friendly experience for both employees and administrators.
+          Our goal is to simplify the leave application process and provide a user-friendly experience for both students and administrators.
         </p>
         <p>
-          If you have any questions or feedback, please feel free to reach out to us at <a href="mailto:support@example.com">support@example.com</a>.
+          If you have any questions or feedback, please feel free to reach out at <a href="mailto:milantony2005@gmail.com">milantony2005@gmail.com</a>.
         </p>
         <p>
           Thank you for using our application!
+        </p>
+        <p>
+        Regards,<br></br>
+        Milan and Akshay
         </p>
       </div>
     );
