@@ -116,7 +116,6 @@ class LeaveApplication {
   }
 
   static async populate(applications, path, select) {
-    // This simulates Mongoose's populate functionality
     if (!applications || applications.length === 0) {
       return applications;
     }
@@ -162,8 +161,7 @@ class LeaveApplication {
         return populatedApp;
       });
     }
-    
-    // If it's a single application
+
     const user = await User.findById(applications.userId);
     if (user) {
       const populatedApp = { ...applications };
